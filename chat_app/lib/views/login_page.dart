@@ -1,8 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/services/auth_service.dart';
+
 import 'package:chat_app/widgets/blue_bttn.dart';
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/labels_.dart';
 import 'package:chat_app/widgets/logo_.dart';
-import 'package:flutter/material.dart';
+
+import 'package:chat_app/helpers/show_alert.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -48,6 +54,8 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -64,10 +72,26 @@ class __FormState extends State<_Form> {
           isPassword: true,
         ),
         BlueBttn(
-            text: "Logueate",
-            onPressed: () {
-              print("Do something");
-            })
+          text: "Logueate",
+          //Si se esta autenticando se manda a true y si no se manda el metodo
+          //este cambio se hace mediante el provider
+          onPressed: authService.authenticating
+              ? () => {} //El botón no se está bloqueando
+              : () async {
+                  FocusScope.of(context).unfocus();
+                  //con listen en false no redibuja el widget
+                  final loginOK = await authService.login(
+                      emailCtrl.text.trim(), passCtrl.text.trim());
+                  if (loginOK) {
+                    //TODO: Conectar a socket server
+                    Navigator.pushReplacementNamed(context, 'users');
+                  } else {
+                    //show alert
+                    showAlert(
+                        context, 'Login incorrecto', 'Revise sus credenciales');
+                  }
+                },
+        )
       ]),
     );
   }

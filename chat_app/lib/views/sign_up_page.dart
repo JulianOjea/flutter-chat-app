@@ -1,8 +1,11 @@
+import 'package:chat_app/helpers/show_alert.dart';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:chat_app/widgets/blue_bttn.dart';
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/labels_.dart';
 import 'package:chat_app/widgets/logo_.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -51,6 +54,8 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -72,10 +77,26 @@ class __FormState extends State<_Form> {
           isPassword: true,
         ),
         BlueBttn(
-            text: "Logueate",
-            onPressed: () {
-              print("Do something");
-            })
+          text: "Registrate",
+          onPressed: authService.authenticating
+              ? () => {} //El botón no se está bloqueando
+              : () async {
+                  FocusScope.of(context).unfocus();
+                  //con listen en false no redibuja el widget
+                  final signupOK = await authService.signUp(
+                      nameCtrl.text.trim(),
+                      emailCtrl.text.trim(),
+                      passCtrl.text.trim());
+                  if (signupOK == true) {
+                    //TODO: Conectar a socket server
+                    Navigator.pushReplacementNamed(context, 'users');
+                  } else {
+                    //show alert
+                    showAlert(
+                        context, 'Sign up incorrecto', signupOK.toString());
+                  }
+                },
+        )
       ]),
     );
   }

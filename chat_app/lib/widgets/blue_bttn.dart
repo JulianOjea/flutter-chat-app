@@ -1,9 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'package:flutter/material.dart';
 
 class BlueBttn extends StatelessWidget {
   final String text;
-  final Function? onPressed;
+  final Function onPressed;
 
   const BlueBttn({
     Key? key,
@@ -18,9 +19,7 @@ class BlueBttn extends StatelessWidget {
           elevation: 2,
           shape: const StadiumBorder(),
           backgroundColor: Colors.blue),
-      onPressed: () {
-        onPressed!();
-      },
+      onPressed: () => onPressed(),
       child: Container(
         width: double.infinity,
         child: Center(
